@@ -29,6 +29,7 @@ const Navbar = ({ onMenuClick }) => {
                     <Link to="/services">Services</Link>
                     <Link to="/complaints">Complaints</Link>
                     <Link to="/announcements">Announcements</Link>
+                    <Link to="/admin" className="link-admin">Admin</Link>
                     <Link to="/emergency" className="link-emergency">Emergency</Link>
                 </div>
 

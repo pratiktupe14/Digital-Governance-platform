@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FileText, Send, CheckCircle, Search, AlertTriangle, Upload } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { FileText, Send, CheckCircle, Search, AlertTriangle, Upload, X, Clock } from 'lucide-react';
 import './Complaints.css';
 
 const Complaints = () => {
@@ -7,6 +7,8 @@ const Complaints = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [searchResult, setSearchResult] = useState(null);
     const [formStatus, setFormStatus] = useState('idle'); // idle, submitting, success
+    const [selectedImage, setSelectedImage] = useState(null);
+    const fileInputRef = useRef(null);
 
     const departments = [
         "Public Works (PWD)",
@@ -17,6 +19,20 @@ const Complaints = () => {
         "Electricity/Energy",
         "Transport"
     ];
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const imageUrl = URL.createObjectURL(file);
+            setSelectedImage(imageUrl);
+        }
+    };
+
+    const removeImage = (e) => {
+        e.stopPropagation();
+        setSelectedImage(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
 
     const handleTrack = (e) => {
         e.preventDefault();
@@ -37,8 +53,8 @@ const Complaints = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         setFormStatus('submitting');
-        // In a real application, you would send formData to a backend here
-        console.log("Submitting form data:", formData);
+        // In a real application, you would send formData and selectedImage to a backend here
+        console.log("Submitting form data:", formData, "Image:", selectedImage);
         setTimeout(() => {
             setFormStatus('success');
             // Optionally reset form data here
@@ -50,6 +66,7 @@ const Complaints = () => {
                 description: '',
                 captcha: ''
             });
+            setSelectedImage(null);
         }, 2000);
     };
 
@@ -165,11 +182,31 @@ const Complaints = () => {
 
                         <div className="form-group">
                             <label>Upload Evidence (Optional)</label>
-                            <div className="file-upload">
-                                <Upload size={24} />
-                                <span>Click to upload or drag and drop</span>
-                                <span className="file-limit">JPG, PNG or PDF (Max 5MB)</span>
-                                <input type="file" hidden />
+                            <div
+                                className={`file-upload ${selectedImage ? 'has-image' : ''}`}
+                                onClick={() => fileInputRef.current.click()}
+                            >
+                                {selectedImage ? (
+                                    <div className="image-preview-container">
+                                        <img src={selectedImage} alt="Complaint Evidence" className="image-preview" />
+                                        <button type="button" className="remove-image-btn" onClick={removeImage}>
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <Upload size={24} />
+                                        <span>Click to upload or drag and drop</span>
+                                        <span className="file-limit">JPG, PNG (Max 5MB)</span>
+                                    </>
+                                )}
+                                <input
+                                    type="file"
+                                    hidden
+                                    accept="image/*"
+                                    ref={fileInputRef}
+                                    onChange={handleImageChange}
+                                />
                             </div>
                         </div>
 
